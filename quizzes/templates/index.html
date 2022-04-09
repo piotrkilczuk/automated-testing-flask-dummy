@@ -1,0 +1,10 @@
+{% extends 'flask_user_layout.html' %}
+
+{% block content %}
+  <h1>Welcome to this project!</h1>
+  <ul>
+    <li>Registration is under <pre>{{ url_for('user.register') }}</pre></li>
+    <li>Authentication is under <pre>{{ url_for('user.login') }}</pre></li>
+    <li>Sign out is under <pre>{{ url_for('user.logout') }}</pre></li>
+  </ul>
+{% endblock %}
