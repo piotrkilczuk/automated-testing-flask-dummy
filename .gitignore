@@ -1,0 +1,6 @@
+# Dev Tools
+.envrc
+/.idea/
+
+# Python
+__pycache__
