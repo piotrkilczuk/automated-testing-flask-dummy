@@ -1,0 +1,10 @@
+{% extends 'flask_user_layout.html' %}
+
+{% block content %}
+  <h1>Choose quiz difficulty</h1>
+  <ul>
+    <li><a href="{{ url_for('.take_quiz', difficulty='easy') }}">Easy</a></li>
+    <li><a href="{{ url_for('.take_quiz', difficulty='medium') }}">Medium</a></li>
+    <li><a href="{{ url_for('.take_quiz', difficulty='hard') }}">Hard</a></li>
+  </ul>
+{% endblock %}
