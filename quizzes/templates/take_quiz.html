@@ -1,0 +1,19 @@
+{% extends 'flask_user_layout.html' %}
+
+{% block content %}
+  <h1>Quiz {{ difficulty }}</h1>
+  <form method="POST" action="">
+    {% for field in form %}
+      <div>
+        {{ field.label }}:
+        {% if field.errors %}
+          <ul class="errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+        {% endif %}
+        {{ field }}
+      </div>
+    {% endfor %}
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+{% endblock %}

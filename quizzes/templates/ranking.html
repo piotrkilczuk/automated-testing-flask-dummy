@@ -1,0 +1,23 @@
+{% extends 'flask_user_layout.html' %}
+
+{% block content %}
+  <h1>Ranking</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Quiz UUID</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in ranking %}
+        <tr>
+          <td>{{ result.user_id }}</td>
+          <td>{{ result.quiz_uuid }}</td>
+          <td>{{ result.points }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,12 +1,14 @@
+from itertools import chain
 from uuid import uuid4
 
 from flask import render_template, request, redirect, url_for
+from flask_login import current_user
 from flask_user import login_required
 from requests import get
 
 from quizzes.app import app
 from quizzes.forms import quiz_form_factory
-from quizzes.models import QuizTaken, QuizQuestion, quizzes_taken
+from quizzes.models import QuizTaken, QuizQuestion, quizzes_taken, calculate_points, QuizResult, quiz_results
 
 
 @app.route("/")
@@ -56,5 +58,15 @@ def take_quiz(uuid: str):
     else:
         form = Form(request.form)
         if form.validate():
-            return redirect("/")
+            points = calculate_points(quiz_taken, request.form)
+            quiz_results[current_user.id].append(
+                QuizResult(user_id=current_user.id, quiz_uuid=quiz_taken.uuid, points=points)
+            )
+            return redirect(url_for("ranking"))
         return render_template("take_quiz.html", form=form)
+
+
+@app.route("/ranking")
+def ranking():
+    quiz_results_sorted = sorted(chain(*quiz_results.values()), key=lambda qr: qr.points, reverse=True)
+    return render_template("ranking.html", ranking=quiz_results_sorted)

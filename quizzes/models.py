@@ -1,9 +1,17 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import List, Dict
 
 from flask_user import UserMixin
 
 from quizzes.app import db
+
+
+POINTS_MULTIPLIER = {
+    "easy": 1,
+    "medium": 2,
+    "hard": 4,
+}
 
 
 @dataclass
@@ -28,7 +36,18 @@ class QuizResult:
 
 
 quizzes_taken: Dict[str, QuizTaken] = {}
-quiz_results: Dict[str, List[QuizResult]] = []
+quiz_results: Dict[str, List[QuizResult]] = defaultdict(list)
+
+
+def calculate_points(quiz_taken: QuizTaken, answers: Dict) -> int:
+    if len(quiz_taken.questions) != len(answers):
+        raise ValueError("Inconsistent questions and answers.")
+
+    points = 0
+    for question, answer in zip(quiz_taken.questions, answers.values()):
+        if answer == question.correct_answer:
+            points += POINTS_MULTIPLIER[quiz_taken.difficulty]
+    return points
 
 
 class User(db.Model, UserMixin):
@@ -39,31 +58,3 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False, server_default="")
     first_name = db.Column(db.String(100), nullable=False, server_default="")
     last_name = db.Column(db.String(100), nullable=False, server_default="")
-
-
-# class Quiz(db.Model):
-#     __tablename__ = "quizzes"
-#     id = db.Column(db.Integer(), primary_key=True)
-#     user_id = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"))
-#     difficulty = db.Column(db.String(255), nullable=False)
-#     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
-#
-#
-# class QuizQuestion(db.Model):
-#     __tablename__ = "quiz_questions"
-#     id = db.Column(db.Integer(), primary_key=True)
-#     quiz_id = db.Column(db.Integer(), db.ForeignKey("quizzes.id", ondelete="CASCADE"))
-#     question = db.Column(db.String(255), nullable=False)
-#     correct_answer = db.Column(db.String(255), nullable=False)
-#     incorrect_answer_1 = db.Column(db.String(255), nullable=False)
-#     incorrect_answer_2 = db.Column(db.String(255), nullable=True)
-#     incorrect_answer_3 = db.Column(db.String(255), nullable=True)
-#
-#
-# class QuizResult(db.Model):
-#     __tablename__ = "quiz_results"
-#     id = db.Column(db.Integer(), primary_key=True)
-#     user_id = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"))
-#     difficulty = db.Column(db.String(255), nullable=False)
-#     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
-#     points = db.Column(db.Integer(), nullable=False)

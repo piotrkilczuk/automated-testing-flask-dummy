@@ -16,6 +16,7 @@ class AppConfig:
 
 def global_vars_report(response: Response) -> Response:
     print(f"{quizzes_taken=}")
+    print(f"{quiz_results=}")
     return response
 
 
@@ -27,6 +28,7 @@ quizzes = __import__("quizzes.models")
 db.create_all()
 User = quizzes.models.User
 quizzes_taken = quizzes.models.quizzes_taken
+quiz_results = quizzes.models.quiz_results
 user_manager = UserManager(app, db, User)
 db.session.add(User(active=True, username="test", password=user_manager.hash_password("test")))
 db.session.commit()
