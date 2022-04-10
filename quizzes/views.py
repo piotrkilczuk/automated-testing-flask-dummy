@@ -70,3 +70,9 @@ def take_quiz(uuid: str):
 def ranking():
     quiz_results_sorted = sorted(chain(*quiz_results.values()), key=lambda qr: qr.points, reverse=True)
     return render_template("ranking.html", ranking=quiz_results_sorted)
+
+
+@app.route("/ranking.json")
+def ranking_json():
+    quiz_results_sorted = sorted(chain(*quiz_results.values()), key=lambda qr: qr.points, reverse=True)
+    return {"ranking": quiz_results_sorted}
