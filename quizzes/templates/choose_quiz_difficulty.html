@@ -3,8 +3,8 @@
 {% block content %}
   <h1>Choose quiz difficulty</h1>
   <ul>
-    <li><a href="{{ url_for('.take_quiz', difficulty='easy') }}">Easy</a></li>
-    <li><a href="{{ url_for('.take_quiz', difficulty='medium') }}">Medium</a></li>
-    <li><a href="{{ url_for('.take_quiz', difficulty='hard') }}">Hard</a></li>
+    <li><a href="{{ url_for('.prepare_quiz', difficulty='easy') }}">Easy</a></li>
+    <li><a href="{{ url_for('.prepare_quiz', difficulty='medium') }}">Medium</a></li>
+    <li><a href="{{ url_for('.prepare_quiz', difficulty='hard') }}">Hard</a></li>
   </ul>
 {% endblock %}
