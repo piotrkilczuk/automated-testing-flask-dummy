@@ -2,9 +2,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import List, Dict
 
+from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserMixin
 
-from quizzes.app import db
+
+db = SQLAlchemy()
 
 
 POINTS_MULTIPLIER = {
