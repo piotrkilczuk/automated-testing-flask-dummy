@@ -1,5 +1,4 @@
 from flask import Flask, Response
-from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserManager
 
 
@@ -20,8 +19,11 @@ def init_database():
     models.db.init_app(app)
     models.db.create_all()
 
-    user_manager = UserManager(app, models.db, models.User)
-    models.db.session.add(models.User(active=True, username="test", password=user_manager.hash_password("test")))
+    # Makes this function idempotent
+    if not hasattr(app, "user_manager"):
+        UserManager(app, models.db, models.User)
+
+    models.db.session.add(models.User(active=True, username="test", password=app.user_manager.hash_password("test")))
     models.db.session.commit()
 
 
