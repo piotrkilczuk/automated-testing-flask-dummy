@@ -1,5 +1,5 @@
-import dataclasses
-from typing import List, Dict
+import enum
+from typing import Dict
 
 import flask_sqlalchemy
 import flask_user
@@ -7,44 +7,17 @@ import flask_user
 db = flask_sqlalchemy.SQLAlchemy()
 
 
-@dataclasses.dataclass
-class QuizQuestion:
-    question: str
-    correct_answer: str
-    incorrect_answers: str
-
-
-@dataclasses.dataclass
-class QuizTaken:
-    uuid: str
-    difficulty: str
-    questions: List[QuizQuestion]
-
-
-@dataclasses.dataclass
-class FakeDatabase:
-    quizzes_taken: Dict[str, QuizTaken] = dataclasses.field(default_factory=dict)
-
-
-fake_db = FakeDatabase()
+class QuizDifficulty(enum.Enum):
+    EASY = 1
+    MEDIUM = 2
+    HARD = 3
 
 
 POINTS_MULTIPLIER = {
-    "easy": 1,
-    "medium": 2,
-    "hard": 4,
+    QuizDifficulty.EASY: 1,
+    QuizDifficulty.MEDIUM: 2,
+    QuizDifficulty.HARD: 4,
 }
-
-
-def calculate_points(quiz_taken: QuizTaken, answers: Dict) -> int:
-    if len(quiz_taken.questions) != len(answers):
-        raise ValueError("Inconsistent questions and answers.")
-
-    points = 0
-    for question, answer in zip(quiz_taken.questions, answers.values()):
-        if answer == question.correct_answer:
-            points += POINTS_MULTIPLIER[quiz_taken.difficulty]
-    return points
 
 
 class User(db.Model, flask_user.UserMixin):
@@ -63,5 +36,37 @@ class QuizResult(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey("users.id"))
     user = db.relationship("User", back_populates="quiz_results")
-    uuid = db.Column(db.String())
+    quiz_id = db.Column(db.Integer(), db.ForeignKey("quiz.id"))
+    quiz = db.relationship("Quiz", back_populates="quiz_result")
     points = db.Column(db.Integer())
+
+
+class QuizQuestion(db.Model):
+    __tablename__ = "quiz_question"
+    id = db.Column(db.Integer(), primary_key=True)
+    quiz_id = db.Column(db.Integer(), db.ForeignKey("quiz.id"))
+    quiz = db.relationship("Quiz", back_populates="quiz_questions")
+    question = db.Column(db.String())
+    correct_answer = db.Column(db.String())
+    incorrect_answers = db.Column(db.JSON())
+
+
+class Quiz(db.Model):
+    __tablename = "quiz"
+    id = db.Column(db.Integer(), primary_key=True)
+    difficulty = db.Column(db.Enum(QuizDifficulty))
+    quiz_result = db.relationship("QuizResult", back_populates="quiz")
+    quiz_questions = db.relationship("QuizQuestion", back_populates="quiz")
+
+
+def calculate_points(quiz: Quiz, answers: Dict) -> int:
+    if len(quiz.quiz_questions) != len(answers):
+        raise ValueError("Inconsistent questions and answers.")
+
+    quiz.quiz_questions.sort(key=lambda q: q.id)
+
+    points = 0
+    for question, answer in zip(quiz.quiz_questions, answers.values()):
+        if answer == question.correct_answer:
+            points += POINTS_MULTIPLIER[quiz.difficulty]
+    return points

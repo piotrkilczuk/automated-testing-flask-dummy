@@ -1,9 +1,6 @@
-from uuid import uuid4
-
-from quizzes.models import calculate_points, QuizTaken
+from quizzes import models
 
 
 def test_calculate_points_dummy():
-    quiz_taken = QuizTaken(uuid=uuid4().hex, difficulty='easy', questions=[])
-    assert 0 == calculate_points(quiz_taken=quiz_taken, answers={})
-
+    quiz = models.Quiz(difficulty=models.QuizDifficulty.EASY)
+    assert 0 == models.calculate_points(quiz=quiz, answers={})

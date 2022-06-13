@@ -6,7 +6,7 @@
     <thead>
       <tr>
         <th>User ID</th>
-        <th>Quiz UUID</th>
+        <th>Quiz ID</th>
         <th>Points</th>
       </tr>
     </thead>
@@ -14,7 +14,7 @@
       {% for result in ranking %}
         <tr>
           <td>{{ result.user.username }}</td>
-          <td>{{ result.uuid }}</td>
+          <td>{{ result.quiz.id }}</td>
           <td>{{ result.points }}</td>
         </tr>
       {% endfor %}
