@@ -4,3 +4,6 @@
 
 # Python
 __pycache__
+
+# Dev Database
+/quizzes/quizzes.db

@@ -1,11 +1,11 @@
-from flask import Flask, Response
+from flask import Flask
 from flask_user import UserManager
 
 
 class AppConfig:
     SECRET_KEY = "replace-me"
 
-    SQLALCHEMY_DATABASE_URI = "sqlite://"  # In Memory
+    SQLALCHEMY_DATABASE_URI = "sqlite:///quizzes.db"  # In Memory
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     USER_APP_NAME = "Quizzes"
@@ -13,31 +13,30 @@ class AppConfig:
     USER_ENABLE_USERNAME = True
 
 
-def init_database():
+def bind_models(app: Flask):
     from quizzes import models
 
     models.db.init_app(app)
-    models.db.create_all()
 
-    # Makes this function idempotent
-    if not hasattr(app, "user_manager"):
-        UserManager(app, models.db, models.User)
-
-    models.db.session.add(models.User(active=True, username="test", password=app.user_manager.hash_password("test")))
-    models.db.session.commit()
+    UserManager(app, models.db, models.User)
 
 
-def global_vars_report(response: Response) -> Response:
+def prepare_database():
     from quizzes import models
 
-    print(f"{models.quizzes_taken=}")
-    print(f"{models.quiz_results=}")
-    return response
+    models.db.create_all()
 
 
-app = Flask(__name__)
-app.config.from_object(AppConfig())
-app.before_first_request(init_database)
-app.after_request(global_vars_report)
+def bind_views(app: Flask):
+    from quizzes import views
 
-__import__("quizzes.views")
+    app.register_blueprint(views.blueprint)
+
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(AppConfig())
+    bind_models(app)
+    bind_views(app)
+    app.before_first_request(prepare_database)
+    return app

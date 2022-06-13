@@ -1,19 +1,11 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserMixin
 
-
 db = SQLAlchemy()
-
-
-POINTS_MULTIPLIER = {
-    "easy": 1,
-    "medium": 2,
-    "hard": 4,
-}
 
 
 @dataclass
@@ -37,8 +29,20 @@ class QuizResult:
     points: int
 
 
-quizzes_taken: Dict[str, QuizTaken] = {}
-quiz_results: Dict[str, List[QuizResult]] = defaultdict(list)
+@dataclass
+class FakeDatabase:
+    quizzes_taken: Dict[str, QuizTaken] = field(default_factory=dict)
+    quiz_results: Dict[str, List[QuizResult]] = field(default_factory=lambda: defaultdict(list))
+
+
+fake_db = FakeDatabase()
+
+
+POINTS_MULTIPLIER = {
+    "easy": 1,
+    "medium": 2,
+    "hard": 4,
+}
 
 
 def calculate_points(quiz_taken: QuizTaken, answers: Dict) -> int:
