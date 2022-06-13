@@ -1,5 +1,5 @@
-from flask import Flask
-from flask_user import UserManager
+import flask
+import flask_user
 
 
 class AppConfig:
@@ -13,12 +13,12 @@ class AppConfig:
     USER_ENABLE_USERNAME = True
 
 
-def bind_models(app: Flask):
+def bind_models(app: flask.Flask):
     from quizzes import models
 
     models.db.init_app(app)
 
-    UserManager(app, models.db, models.User)
+    flask_user.UserManager(app, models.db, models.User)
 
 
 def prepare_database():
@@ -27,14 +27,14 @@ def prepare_database():
     models.db.create_all()
 
 
-def bind_views(app: Flask):
+def bind_views(app: flask.Flask):
     from quizzes import views
 
     app.register_blueprint(views.blueprint)
 
 
 def create_app():
-    app = Flask(__name__)
+    app = flask.Flask(__name__)
     app.config.from_object(AppConfig())
     bind_models(app)
     bind_views(app)

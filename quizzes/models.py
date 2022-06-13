@@ -1,38 +1,40 @@
-from collections import defaultdict
-from dataclasses import dataclass, field
+import collections
+import dataclasses
 from typing import List, Dict
 
-from flask_sqlalchemy import SQLAlchemy
-from flask_user import UserMixin
+import flask_sqlalchemy
+import flask_user
 
-db = SQLAlchemy()
+db = flask_sqlalchemy.SQLAlchemy()
 
 
-@dataclass
+@dataclasses.dataclass
 class QuizQuestion:
     question: str
     correct_answer: str
     incorrect_answers: str
 
 
-@dataclass
+@dataclasses.dataclass
 class QuizTaken:
     uuid: str
     difficulty: str
     questions: List[QuizQuestion]
 
 
-@dataclass
+@dataclasses.dataclass
 class QuizResult:
     user_id: int
     quiz_uuid: str
     points: int
 
 
-@dataclass
+@dataclasses.dataclass
 class FakeDatabase:
-    quizzes_taken: Dict[str, QuizTaken] = field(default_factory=dict)
-    quiz_results: Dict[str, List[QuizResult]] = field(default_factory=lambda: defaultdict(list))
+    quizzes_taken: Dict[str, QuizTaken] = dataclasses.field(default_factory=dict)
+    quiz_results: Dict[str, List[QuizResult]] = dataclasses.field(
+        default_factory=lambda: collections.defaultdict(list)
+    )
 
 
 fake_db = FakeDatabase()
@@ -56,7 +58,7 @@ def calculate_points(quiz_taken: QuizTaken, answers: Dict) -> int:
     return points
 
 
-class User(db.Model, UserMixin):
+class User(db.Model, flask_user.UserMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer(), primary_key=True)
     active = db.Column("is_active", db.Boolean(), nullable=False, server_default="1")

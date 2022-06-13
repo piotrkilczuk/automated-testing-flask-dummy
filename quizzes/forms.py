@@ -1,17 +1,19 @@
-from html import unescape
+import html
 from typing import Type
 
-from wtforms import Form, RadioField
+import wtforms
 
-from quizzes.models import QuizTaken
+from quizzes import models
 
 
-def quiz_form_factory(quiz_taken: QuizTaken) -> Type[Form]:
+def quiz_form_factory(quiz_taken: models.QuizTaken) -> Type[wtforms.Form]:
     return type(
         "QuizForm",
-        (Form,),
+        (wtforms.Form,),
         {
-            f"question_{i}": RadioField(unescape(q.question), choices=q.incorrect_answers + [q.correct_answer])
+            f"question_{i}": wtforms.RadioField(
+                html.unescape(q.question), choices=q.incorrect_answers + [q.correct_answer]
+            )
             for i, q in enumerate(quiz_taken.questions, start=1)
         },
     )
