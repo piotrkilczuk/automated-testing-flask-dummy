@@ -60,24 +60,32 @@ def take_quiz(quiz_uuid: str):
         form = Form(flask.request.form)
         if form.validate():
             points = models.calculate_points(quiz_taken, flask.request.form)
-            models.fake_db.quiz_results[flask_login.current_user.id].append(
-                models.QuizResult(user_id=flask_login.current_user.id, quiz_uuid=quiz_taken.uuid, points=points)
+            models.db.session.add(
+                models.QuizResult(user=flask_login.current_user, uuid=quiz_taken.uuid, points=points)
             )
+            models.db.session.commit()
             return flask.redirect(helpers.url_for("quizzes.ranking"))
         return templating.render_template("take_quiz.html", form=form)
 
 
 @blueprint.route("/ranking")
 def ranking():
-    quiz_results_sorted = sorted(
-        itertools.chain(*models.fake_db.quiz_results.values()), key=lambda qr: qr.points, reverse=True
-    )
-    return templating.render_template("ranking.html", ranking=quiz_results_sorted)
+    quiz_results = models.db.session.query(models.QuizResult).order_by(models.QuizResult.points.desc())
+    return templating.render_template("ranking.html", ranking=quiz_results)
 
 
 @blueprint.route("/ranking.json")
 def ranking_json():
-    quiz_results_sorted = sorted(
-        itertools.chain(*models.fake_db.quiz_results.values()), key=lambda qr: qr.points, reverse=True
-    )
-    return {"ranking": quiz_results_sorted}
+    quiz_results = models.db.session.query(models.QuizResult).order_by(models.QuizResult.points.desc())
+    return {
+        "ranking": [
+            {
+                "user": {
+                    "username": r.user.username,
+                },
+                "uuid": r.uuid,
+                "points": r.points,
+            }
+            for r in quiz_results
+        ]
+    }

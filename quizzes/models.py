@@ -1,4 +1,3 @@
-import collections
 import dataclasses
 from typing import List, Dict
 
@@ -23,18 +22,8 @@ class QuizTaken:
 
 
 @dataclasses.dataclass
-class QuizResult:
-    user_id: int
-    quiz_uuid: str
-    points: int
-
-
-@dataclasses.dataclass
 class FakeDatabase:
     quizzes_taken: Dict[str, QuizTaken] = dataclasses.field(default_factory=dict)
-    quiz_results: Dict[str, List[QuizResult]] = dataclasses.field(
-        default_factory=lambda: collections.defaultdict(list)
-    )
 
 
 fake_db = FakeDatabase()
@@ -66,3 +55,13 @@ class User(db.Model, flask_user.UserMixin):
     password = db.Column(db.String(255), nullable=False, server_default="")
     first_name = db.Column(db.String(100), nullable=False, server_default="")
     last_name = db.Column(db.String(100), nullable=False, server_default="")
+    quiz_results = db.relationship("QuizResult", back_populates="user")
+
+
+class QuizResult(db.Model):
+    __tablename__ = "quiz_results"
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey("users.id"))
+    user = db.relationship("User", back_populates="quiz_results")
+    uuid = db.Column(db.String())
+    points = db.Column(db.Integer())

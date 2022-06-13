@@ -13,8 +13,8 @@
     <tbody>
       {% for result in ranking %}
         <tr>
-          <td>{{ result.user_id }}</td>
-          <td>{{ result.quiz_uuid }}</td>
+          <td>{{ result.user.username }}</td>
+          <td>{{ result.uuid }}</td>
           <td>{{ result.points }}</td>
         </tr>
       {% endfor %}
