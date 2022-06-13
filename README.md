@@ -20,4 +20,4 @@ FLASK_APP=quizzes.app flask run
 Persistence
 -----------
 
-Uses ephemeral storage only. In memory SQLite for Users, global variable for Quiz data. Adjust to your needs.
+Uses SQLite for Users, global variable `quizzes/models.py:38` for Quiz data. Adjust to your needs.
