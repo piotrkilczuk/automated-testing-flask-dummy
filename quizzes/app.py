@@ -1,5 +1,6 @@
 import flask
 import flask_user
+from wtforms import validators
 
 
 class AppConfig:
@@ -13,12 +14,19 @@ class AppConfig:
     USER_ENABLE_USERNAME = True
 
 
+class UserManager(flask_user.UserManager):
+    def password_validator(self, form, field):
+        password_length = len(field.data)
+        if not password_length:
+            raise validators.ValidationError("The password is too short.")
+
+
 def bind_models(app: flask.Flask):
     from quizzes import models
 
     models.db.init_app(app)
 
-    flask_user.UserManager(app, models.db, models.User)
+    UserManager(app, models.db, models.User)
 
 
 def prepare_database():
